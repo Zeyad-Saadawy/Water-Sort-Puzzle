@@ -20,17 +20,17 @@ public class WaterSortSearch extends GenericSearch {
         
         // Call the appropriate search method based on the strategy
         switch (strategy) {
-            case "BFS":
+            case "BF":
                 return breadthFirstSearch(visualize);
-            case "DFS":
+            case "DF":
                 return depthFirstSearch(visualize);
-            case "UCS":
+            case "UC":
                 return uniformCostSearch(visualize);
             case "Greedy":
                 return greedySearch(visualize);
             case "A*":
                 return aStarSearch(visualize);
-            case "IDS":
+            case "ID":
                 return iterativeDeepeningSearch(visualize);
             default:
                 throw new IllegalArgumentException("Invalid search strategy: " + strategy);
@@ -60,7 +60,7 @@ public class WaterSortSearch extends GenericSearch {
     // Breadth-First Search with visualization option
     private String breadthFirstSearch(boolean visualize) {
         bfsQueue.clear(); // Ensure the queue is clear before use
-        addToFrontier(root, "BFS"); // Add the initial node to the queue
+        addToFrontier(root, "BF"); // Add the initial node to the queue
 
         while (!bfsQueue.isEmpty()) {
             Node currentNode = bfsQueue.poll();
@@ -73,7 +73,7 @@ public class WaterSortSearch extends GenericSearch {
                 return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
             }
 
-            expandNode(currentNode, "BFS"); // Expand the current node
+            expandNode(currentNode, "BF"); // Expand the current node
         }
 
         return "NOSOLUTION"; // Return if no solution is found
@@ -82,7 +82,7 @@ public class WaterSortSearch extends GenericSearch {
     // Depth-First Search with visualization option
     private String depthFirstSearch(boolean visualize) {
         dfsStack.clear(); // Ensure the stack is clear before use
-        addToFrontier(root, "DFS"); // Add the initial node to the stack
+        addToFrontier(root, "DF"); // Add the initial node to the stack
 
         while (!dfsStack.isEmpty()) {
             Node currentNode = dfsStack.pop();
@@ -95,7 +95,7 @@ public class WaterSortSearch extends GenericSearch {
                 return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
             }
 
-            expandNode(currentNode, "DFS"); // Expand the current node
+            expandNode(currentNode, "DF"); // Expand the current node
         }
 
         return "NOSOLUTION"; // Return if no solution is found
@@ -104,7 +104,7 @@ public class WaterSortSearch extends GenericSearch {
     // Uniform Cost Search with visualization option
     private String uniformCostSearch(boolean visualize) {
         priorityQueue.clear(); // Ensure the priority queue is clear before use
-        addToFrontier(root, "UCS"); // Add the initial node to the priority queue
+        addToFrontier(root, "UC"); // Add the initial node to the priority queue
 
         while (!priorityQueue.isEmpty()) {
             Node currentNode = priorityQueue.poll();
@@ -117,7 +117,7 @@ public class WaterSortSearch extends GenericSearch {
                 return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
             }
 
-            expandNode(currentNode, "UCS"); // Expand the current node
+            expandNode(currentNode, "UC"); // Expand the current node
         }
 
         return "NOSOLUTION"; // Return if no solution is found
@@ -126,7 +126,7 @@ public class WaterSortSearch extends GenericSearch {
     // Greedy Search with visualization option
     private String greedySearch(boolean visualize) {
         priorityQueue.clear(); // Ensure the priority queue is clear before use
-        addToFrontier(root, "Greedy"); // Add the initial node to the priority queue
+        addToFrontier(root, "GR"); // Add the initial node to the priority queue
 
         while (!priorityQueue.isEmpty()) {
             Node currentNode = priorityQueue.poll();
@@ -148,7 +148,7 @@ public class WaterSortSearch extends GenericSearch {
     // A* Search with visualization option
     private String aStarSearch(boolean visualize) {
         priorityQueue.clear(); // Ensure the priority queue is clear before use
-        addToFrontier(root, "A*"); // Add the initial node to the priority queue
+        addToFrontier(root, "AS"); // Add the initial node to the priority queue
 
         while (!priorityQueue.isEmpty()) {
             Node currentNode = priorityQueue.poll();
@@ -188,7 +188,7 @@ public class WaterSortSearch extends GenericSearch {
             return "NOSOLUTION"; // Return no solution if depth limit is reached
         }
 
-        expandNode(node, "DFS"); // Expand the current node
+        expandNode(node, "DF"); // Expand the current node
 
         for (Node child : node.getChildren()) {
             if (!isExplored(child)) {

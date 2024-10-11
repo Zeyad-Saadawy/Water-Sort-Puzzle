@@ -9,7 +9,7 @@ public class Main {
         String initialState = "3;4;r,y,r,y;y,r,y,r;e,e,e,e;";
         
         // Specify the search strategy
-        String strategy = "BFS"; // You can change this to "DFS", "UCS", "Greedy", "A*", or "IDS"
+        String strategy = "BF"; // You can change this to "DFS", "UCS", "Greedy", "A*", or "IDS"
         
         // Set visualize to true or false to control visualization output
         boolean visualize = true;

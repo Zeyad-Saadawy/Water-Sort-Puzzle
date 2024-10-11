@@ -33,18 +33,18 @@ public abstract class GenericSearch {
     // Method to add a node to the frontier based on the search strategy
     protected void addToFrontier(Node node, String strategy) {
         switch (strategy) {
-            case "BFS":
+            case "BF":
                 bfsQueue.add(node); // Add node to the queue for BFS
                 break;
-            case "DFS":
+            case "DF":
                 dfsStack.push(node); // Push node onto the stack for DFS
                 break;
-            case "UCS":
-            case "A*":
-            case "Greedy":
+            case "UC":
+            case "AS":
+            case "GR":
                 priorityQueue.add(node); // Add node to the priority queue
                 break;
-            case "IDS":
+            case "ID":
                 dfsStack.push(node); // Push node onto the stack for IDS
                 break;
             default:
