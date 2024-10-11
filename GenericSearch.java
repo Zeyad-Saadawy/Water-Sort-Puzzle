@@ -2,6 +2,7 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.LinkedList;
 
 public abstract class GenericSearch {
     protected Node root; // The root node of the search tree
@@ -16,10 +17,13 @@ public abstract class GenericSearch {
         this.root = root;
         this.explored = new HashSet<>(); // Initialize the explored set
         this.expandedNodes = 0;
+        this.bfsQueue = new LinkedList<>(); // Initialize the BFS queue
+        this.dfsStack = new Stack<>(); // Initialize the DFS stack
+        this.priorityQueue = new PriorityQueue<>(new NodeComparator()); // Initialize the priority queue
     }
 
     // Abstract method for solving the search problem
-    public abstract String solve(String strategy);
+    public abstract String solve(String initialState, String strategy, boolean visualize);
 
     // Method to check if a node's state has already been explored
     protected boolean isExplored(Node node) {
@@ -46,6 +50,15 @@ public abstract class GenericSearch {
             default:
                 throw new IllegalArgumentException("Invalid search strategy: " + strategy);
         }
+    }
+
+    // Method to clear the explored set and frontiers for a new search
+    protected void reset() {
+        explored.clear(); // Clear explored nodes
+        expandedNodes = 0; // Reset the expanded nodes count
+        bfsQueue.clear(); // Clear the BFS queue
+        dfsStack.clear(); // Clear the DFS stack
+        priorityQueue.clear(); // Clear the priority queue
     }
 
     // Method to expand a node and add its children to the frontier

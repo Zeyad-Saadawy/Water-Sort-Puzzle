@@ -2,193 +2,212 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class WaterSortSearch extends GenericSearch {
+    
     public WaterSortSearch(Node root) {
         super(root);
     }
 
-    // Static method to initialize a Node from an initialState string
-    public static Node initializeNode(String initialState) {
-        // Split the initial state by semicolons
-        String[] parts = initialState.split(";");
-
-        // Get number of bottles and bottle capacity
-        int numberOfBottles = Integer.parseInt(parts[0]);
-        int bottleCapacity = Integer.parseInt(parts[1]);
-
-        // Set max capacity for bottles
-        Bottle.setMaxCapacity(bottleCapacity);
-
-        // Create bottles based on the provided colors
-        ArrayList<Bottle> bottles = new ArrayList<>();
-        for (int i = 2; i < parts.length; i++) { // Start from index 2 for bottle layers
-            String[] colors = parts[i].split(","); // Split colors by commas
-            Bottle bottle = new Bottle(""); // Create an empty bottle
-
-            // Add each layer to the bottle
-            for (String color : colors) {
-                bottle.addLayer(color);
-            }
-            bottles.add(bottle); // Add bottle to the list
-        }
-
-        // Create and return a new Node with the parsed state
-        return new Node(bottles, null, "initial", 0, 0);
-    }
-
-    @Override
-    public String solve(String strategy) {
+    // Solve method that takes initialState, strategy, and visualize flag
+    public String solve(String initialState, String strategy, boolean visualize) {
+        // Initialize the root node based on the initialState
+        Node initialNode = initializeNode(initialState);
+        
+        // Set the root for this search instance
+        this.root = initialNode; 
+        
+        // Call the appropriate search method based on the strategy
         switch (strategy) {
             case "BFS":
-                return breadthFirstSearch();
+                return breadthFirstSearch(visualize);
             case "DFS":
-                return depthFirstSearch();
+                return depthFirstSearch(visualize);
             case "UCS":
-                return uniformCostSearch();
+                return uniformCostSearch(visualize);
             case "Greedy":
-                return greedySearch();
+                return greedySearch(visualize);
             case "A*":
-                return aStarSearch();
+                return aStarSearch(visualize);
             case "IDS":
-                return iterativeDeepeningSearch();
+                return iterativeDeepeningSearch(visualize);
             default:
                 throw new IllegalArgumentException("Invalid search strategy: " + strategy);
         }
     }
 
-    // Implement BFS
-    private String breadthFirstSearch() {
-        bfsQueue = new LinkedList<>(); // Initialize the bfsQueue for BFS
-        addToFrontier(root, "BFS"); // Start with the root node
+    // Static method to initialize a Node from an initialState string
+    public static Node initializeNode(String initialState) {
+        String[] parts = initialState.split(";");
+        int numberOfBottles = Integer.parseInt(parts[0]);
+        int bottleCapacity = Integer.parseInt(parts[1]);
+        Bottle.setMaxCapacity(bottleCapacity);
 
-        String plan = "";
+        ArrayList<Bottle> bottles = new ArrayList<>();
+        for (int i = 2; i < parts.length; i++) {
+            String[] colors = parts[i].split(",");
+            Bottle bottle = new Bottle(""); // Create a new Bottle
+            for (String color : colors) {
+                bottle.addLayer(color); // Add each color layer
+            }
+            bottles.add(bottle); // Add the bottle to the list
+        }
+
+        return new Node(bottles, null, "initial", 0, 0); // Create and return the initial Node
+    }
+
+    // Breadth-First Search with visualization option
+    private String breadthFirstSearch(boolean visualize) {
+        bfsQueue.clear(); // Ensure the queue is clear before use
+        addToFrontier(root, "BFS"); // Add the initial node to the queue
+
         while (!bfsQueue.isEmpty()) {
-            Node currentNode = bfsQueue.poll(); // Get the next node to expand
-
-            if (currentNode.isGoal()) {
-                plan = buildPlan(currentNode); // Build the plan from the goal node
-                return plan + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
+            Node currentNode = bfsQueue.poll();
+            
+            if (visualize) {
+                visualizeState(currentNode); // Visualize the current state
             }
 
-            // Expand the current node
-            expandNode(currentNode, "BFS");
+            if (currentNode.isGoal()) {
+                return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
+            }
+
+            expandNode(currentNode, "BFS"); // Expand the current node
         }
 
-        return "NOSOLUTION"; // No solution found
+        return "NOSOLUTION"; // Return if no solution is found
     }
 
-    // Implement DFS
-    private String depthFirstSearch() {
-        dfsStack = new Stack<>(); // Initialize the stack for DFS
-        addToFrontier(root, "DFS"); // Start with the root node
+    // Depth-First Search with visualization option
+    private String depthFirstSearch(boolean visualize) {
+        dfsStack.clear(); // Ensure the stack is clear before use
+        addToFrontier(root, "DFS"); // Add the initial node to the stack
 
-        String plan = "";
         while (!dfsStack.isEmpty()) {
-            Node currentNode = dfsStack.pop(); // Get the next node to expand
-
-            if (currentNode.isGoal()) {
-                plan = buildPlan(currentNode); // Build the plan from the goal node
-                return plan + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
+            Node currentNode = dfsStack.pop();
+            
+            if (visualize) {
+                visualizeState(currentNode); // Visualize the current state
             }
-
-            // Expand the current node
-            expandNode(currentNode, "DFS");
-        }
-
-        return "NOSOLUTION"; // No solution found
-    }
-
-    // Implement UCS
-    private String uniformCostSearch() {
-        priorityQueue = new PriorityQueue<>(new NodeComparator()); // Initialize the priority queue
-        addToFrontier(root, "UCS"); // Start with the root node
-
-        while (!priorityQueue.isEmpty()) {
-            Node currentNode = priorityQueue.poll(); // Get the node with the lowest cost
 
             if (currentNode.isGoal()) {
                 return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
             }
 
-            // Expand the current node
-            expandNode(currentNode, "UCS");
+            expandNode(currentNode, "DFS"); // Expand the current node
         }
 
-        return "NOSOLUTION"; // No solution found
+        return "NOSOLUTION"; // Return if no solution is found
     }
 
-    // Implement Greedy Search
-    private String greedySearch() {
-        priorityQueue = new PriorityQueue<>(new NodeComparator()); // Initialize the priority queue
-        addToFrontier(root, "Greedy"); // Start with the root node
+    // Uniform Cost Search with visualization option
+    private String uniformCostSearch(boolean visualize) {
+        priorityQueue.clear(); // Ensure the priority queue is clear before use
+        addToFrontier(root, "UCS"); // Add the initial node to the priority queue
 
         while (!priorityQueue.isEmpty()) {
-            Node currentNode = priorityQueue.poll(); // Get the node with the lowest heuristic value
+            Node currentNode = priorityQueue.poll();
+            
+            if (visualize) {
+                visualizeState(currentNode); // Visualize the current state
+            }
 
             if (currentNode.isGoal()) {
                 return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
             }
 
-            // Expand the current node
-            expandNode(currentNode, "Greedy");
+            expandNode(currentNode, "UCS"); // Expand the current node
         }
 
-        return "NOSOLUTION"; // No solution found
+        return "NOSOLUTION"; // Return if no solution is found
     }
 
-    // Implement A* Search
-    private String aStarSearch() {
-        priorityQueue = new PriorityQueue<>(new NodeComparator()); // Initialize the priority queue
-        addToFrontier(root, "A*"); // Start with the root node
+    // Greedy Search with visualization option
+    private String greedySearch(boolean visualize) {
+        priorityQueue.clear(); // Ensure the priority queue is clear before use
+        addToFrontier(root, "Greedy"); // Add the initial node to the priority queue
 
         while (!priorityQueue.isEmpty()) {
-            Node currentNode = priorityQueue.poll(); // Get the node with the lowest f(n) value
+            Node currentNode = priorityQueue.poll();
+            
+            if (visualize) {
+                visualizeState(currentNode); // Visualize the current state
+            }
 
             if (currentNode.isGoal()) {
                 return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
             }
 
-            // Expand the current node
-            expandNode(currentNode, "A*");
+            expandNode(currentNode, "Greedy"); // Expand the current node
         }
 
-        return "NOSOLUTION"; // No solution found
+        return "NOSOLUTION"; // Return if no solution is found
     }
 
-    // Implement Iterative Deepening Search
-    private String iterativeDeepeningSearch() {
-        // Iterative deepening requires depth-limited DFS
+    // A* Search with visualization option
+    private String aStarSearch(boolean visualize) {
+        priorityQueue.clear(); // Ensure the priority queue is clear before use
+        addToFrontier(root, "A*"); // Add the initial node to the priority queue
+
+        while (!priorityQueue.isEmpty()) {
+            Node currentNode = priorityQueue.poll();
+            
+            if (visualize) {
+                visualizeState(currentNode); // Visualize the current state
+            }
+
+            if (currentNode.isGoal()) {
+                return buildPlan(currentNode) + ";" + currentNode.pathCost + ";" + expandedNodes; // Return the result
+            }
+
+            expandNode(currentNode, "A*"); // Expand the current node
+        }
+
+        return "NOSOLUTION"; // Return if no solution is found
+    }
+
+    // Iterative Deepening Search with visualization option
+    private String iterativeDeepeningSearch(boolean visualize) {
         int depthLimit = 0;
-
         while (true) {
-            String result = depthLimitedDFS(root, depthLimit);
+            String result = depthLimitedDFS(root, depthLimit, visualize);
             if (!result.equals("NOSOLUTION")) {
-                return result; // Return the result if found
+                return result; // Return if a solution is found
             }
             depthLimit++; // Increase the depth limit
         }
     }
 
-    // Depth-limited DFS implementation
-    private String depthLimitedDFS(Node node, int limit) {
+    // Depth-limited DFS with visualization option
+    private String depthLimitedDFS(Node node, int limit, boolean visualize) {
         if (node.isGoal()) {
             return buildPlan(node) + ";" + node.pathCost + ";" + expandedNodes; // Return the result if goal is reached
         }
-
         if (limit == 0) {
             return "NOSOLUTION"; // Return no solution if depth limit is reached
         }
 
-        expandNode(node, "DFS"); // Expand the node to explore children
+        expandNode(node, "DFS"); // Expand the current node
+
         for (Node child : node.getChildren()) {
-            String result = depthLimitedDFS(child, limit - 1);
-            if (!result.equals("NOSOLUTION")) {
-                return result; // Return the result if a solution is found
+            if (!isExplored(child)) {
+                String result = depthLimitedDFS(child, limit - 1, visualize);
+                if (!result.equals("NOSOLUTION")) {
+                    return result; // Return if a solution is found
+                }
             }
         }
-
         return "NOSOLUTION"; // No solution found at this depth
+    }
+
+    // Visualize the state (print the current node's state)
+    private void visualizeState(Node node) {
+        System.out.println("Current State:");
+        for (Bottle bottle : node.state) {
+            System.out.println(bottle.layers); // Print the layers of each bottle
+        }
+        System.out.println("----------------");
     }
 
     // Method to build the action plan from the goal node to the root
@@ -209,4 +228,6 @@ public class WaterSortSearch extends GenericSearch {
 
         return planBuilder.toString(); // Return the constructed plan
     }
+
+    // Other methods (expandNode, addToFrontier, etc.) should be defined in GenericSearch or here...
 }
