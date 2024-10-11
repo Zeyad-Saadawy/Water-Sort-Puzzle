@@ -9,7 +9,7 @@ public abstract class GenericSearch {
     protected Queue<Node> bfsQueue; // Queue for BFS
     protected Stack<Node> dfsStack; // Stack for DFS
     protected PriorityQueue<Node> priorityQueue; // Priority queue for UCS, Greedy, and A*
-    protected HashSet<Node> explored; // Set to track explored nodes
+    protected HashSet<String> explored; // Set to track explored nodes
     protected int expandedNodes; // Count of nodes expanded during search
 
     // Constructor
@@ -64,11 +64,13 @@ public abstract class GenericSearch {
     // Method to expand a node and add its children to the frontier
     protected void expandNode(Node node, String strategy) {
         expandedNodes++; // Increment the count of expanded nodes
-        explored.add(node); // Mark the node as explored
+        explored.add(node.getStateKey()); // Mark the node's state key as explored
+    
         for (Node child : node.getChildren()) {
-            if (!isExplored(child)) {
+            if (!explored.contains(child.getStateKey())) { // Check if the child's state has been explored
                 addToFrontier(child, strategy); // Add valid children to the frontier
             }
         }
     }
+    
 }

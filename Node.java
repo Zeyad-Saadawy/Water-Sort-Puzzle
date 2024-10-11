@@ -17,6 +17,16 @@ public class Node {
         this.pathCost = pathCost;
     }
 
+    public String getStateKey() {
+        StringBuilder stateKey = new StringBuilder();
+        for (Bottle bottle : state) {
+            // Append layers of the bottle in a specific format (e.g., "r,g,y")
+            stateKey.append(String.join(",", bottle.layers));
+            stateKey.append(";"); // Separator for different bottles
+        }
+        return stateKey.toString(); // Return the unique state representation
+    }
+
     // Method to get children of the current node
     public ArrayList<Node> getChildren() {
         ArrayList<Node> children = new ArrayList<>();

@@ -6,7 +6,7 @@ public class Main {
         // 3 bottles, each with a maximum capacity of 4 layers
         // Bottle 0 has layers: red (r), green (g), yellow (y)
         // Bottle 1 has layers: empty (e), empty (e), yellow (y), blue (b)
-        String initialState = "3;4;r,g,y;e;e,y,b;";
+        String initialState = "3;4;r,y,r,y;y,r,y,r;e,e,e,e;";
         
         // Specify the search strategy
         String strategy = "BFS"; // You can change this to "DFS", "UCS", "Greedy", "A*", or "IDS"
