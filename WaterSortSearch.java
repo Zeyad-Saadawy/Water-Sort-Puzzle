@@ -1,7 +1,6 @@
 import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.LinkedList;
-import java.util.Queue;
 
 public class WaterSortSearch extends GenericSearch {
     public WaterSortSearch(Node root) {
