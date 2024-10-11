@@ -1,12 +1,42 @@
 import java.util.PriorityQueue;
 import java.util.Stack;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class WaterSortSearch extends GenericSearch {
     public WaterSortSearch(Node root) {
         super(root);
     }
-    
+
+    // Static method to initialize a Node from an initialState string
+    public static Node initializeNode(String initialState) {
+        // Split the initial state by semicolons
+        String[] parts = initialState.split(";");
+
+        // Get number of bottles and bottle capacity
+        int numberOfBottles = Integer.parseInt(parts[0]);
+        int bottleCapacity = Integer.parseInt(parts[1]);
+
+        // Set max capacity for bottles
+        Bottle.setMaxCapacity(bottleCapacity);
+
+        // Create bottles based on the provided colors
+        ArrayList<Bottle> bottles = new ArrayList<>();
+        for (int i = 2; i < parts.length; i++) { // Start from index 2 for bottle layers
+            String[] colors = parts[i].split(","); // Split colors by commas
+            Bottle bottle = new Bottle(""); // Create an empty bottle
+
+            // Add each layer to the bottle
+            for (String color : colors) {
+                bottle.addLayer(color);
+            }
+            bottles.add(bottle); // Add bottle to the list
+        }
+
+        // Create and return a new Node with the parsed state
+        return new Node(bottles, null, "initial", 0, 0);
+    }
+
     @Override
     public String solve(String strategy) {
         switch (strategy) {
