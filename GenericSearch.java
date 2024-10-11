@@ -1,23 +1,23 @@
 import java.util.*;
+import java.util.function.Function;
 
-// Abstract class that defines a generic search framework
+// Abstract class for generic search algorithms
 public abstract class GenericSearch {
     protected int nodesExpanded = 0; // Keeps track of the number of nodes expanded during the search
 
-    // Abstract method that needs to be implemented by the specific problem subclass (like WaterSortSearch)
+    // Abstract method to be implemented by subclasses (e.g., WaterSortSearch)
     public abstract Node search(Node initialState);
 
-    // Reconstructs the path from the solution node to the initial state by following the parent references
+    // Reconstruct the solution path
     protected List<String> reconstructPath(Node node) {
         List<String> path = new ArrayList<>();
         while (node.getParent() != null) {
-            path.add(0, node.getOperator());  // Adds the action (operator) that led to this node
+            path.add(0, node.getOperator());  // Add action to the path
             node = node.getParent();
         }
         return path;
     }
 
-    // Getter for the number of nodes expanded during the search
     public int getNodesExpanded() {
         return nodesExpanded;
     }
@@ -33,7 +33,7 @@ public abstract class GenericSearch {
             nodesExpanded++;
 
             if (node.isGoalState()) {
-                return node;  // Return the goal node if the goal is reached
+                return node;  // Return the goal node if found
             }
 
             explored.add(node.getState());
@@ -45,7 +45,7 @@ public abstract class GenericSearch {
             }
         }
 
-        return null;  // Return null if no solution is found
+        return null;  // No solution found
     }
 
     // Depth-first search implementation
@@ -59,7 +59,7 @@ public abstract class GenericSearch {
             nodesExpanded++;
 
             if (node.isGoalState()) {
-                return node;  // Return the goal node if the goal is reached
+                return node;
             }
 
             explored.add(node.getState());
@@ -71,32 +71,29 @@ public abstract class GenericSearch {
             }
         }
 
-        return null;  // Return null if no solution is found
+        return null;
     }
 
-    // Iterative deepening search implementation
+    // Iterative deepening search
     protected Node iterativeDeepeningSearch(Node initialState) {
         for (int depth = 0; ; depth++) {
             Node result = depthLimitedSearch(initialState, depth);
             if (result != null) {
-                return result;  // Return the result if goal is found within depth limit
+                return result;  // Return if a solution is found within depth
             }
         }
     }
 
-    // Depth-limited search used by iterative deepening
     private Node depthLimitedSearch(Node node, int limit) {
         if (node.isGoalState()) return node;
         else if (limit == 0) return null;
 
-        boolean cutoff = false;
         for (Node child : node.getChildren()) {
             Node result = depthLimitedSearch(child, limit - 1);
-            if (result == null) cutoff = true;
-            else if (result.isGoalState()) return result;
+            if (result != null && result.isGoalState()) return result;
         }
 
-        return cutoff ? null : null;
+        return null;
     }
 
     // Uniform cost search implementation
@@ -110,7 +107,7 @@ public abstract class GenericSearch {
             nodesExpanded++;
 
             if (node.isGoalState()) {
-                return node;  // Return the goal node if the goal is reached
+                return node;
             }
 
             explored.add(node.getState());
@@ -125,12 +122,12 @@ public abstract class GenericSearch {
             }
         }
 
-        return null;  // Return null if no solution is found
+        return null;
     }
 
-    // Greedy search with two heuristics
-    protected Node greedySearch(Node initialState, int heuristicType) {
-        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> heuristic(node, heuristicType)));
+    // Greedy search implementation with heuristic
+    protected Node greedySearch(Node initialState, Function<Node, Integer> heuristic) {
+        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(heuristic::apply));
         Set<List<Bottle>> explored = new HashSet<>();
         frontier.add(initialState);
 
@@ -154,9 +151,9 @@ public abstract class GenericSearch {
         return null;
     }
 
-    // A* search with two heuristics
-    protected Node aStarSearch(Node initialState, int heuristicType) {
-        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> node.getPathCost() + heuristic(node, heuristicType)));
+    // A* search implementation with heuristic
+    protected Node aStarSearch(Node initialState, Function<Node, Integer> heuristic) {
+        PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(node -> node.getPathCost() + heuristic.apply(node)));
         Set<List<Bottle>> explored = new HashSet<>();
         frontier.add(initialState);
 
@@ -178,39 +175,6 @@ public abstract class GenericSearch {
         }
 
         return null;
-    }
-
-    // Heuristic function that selects between two different heuristic types
-    protected int heuristic(Node node, int heuristicType) {
-        if (heuristicType == 1) {
-            return heuristicOne(node);
-        } else if (heuristicType == 2) {
-            return heuristicTwo(node);
-        } else {
-            throw new IllegalArgumentException("Unknown heuristic type: " + heuristicType);
-        }
-    }
-
-    // First heuristic function
-    protected int heuristicOne(Node node) {
-        // Example heuristic: Number of bottles with more than one color
-        int heuristicValue = 0;
-        for (Bottle bottle : node.getState()) {
-            if (!bottle.isSingleColored()) {
-                heuristicValue++;
-            }
-        }
-        return heuristicValue;
-    }
-
-    // Second heuristic function
-    protected int heuristicTwo(Node node) {
-        // Example heuristic: Total number of mismatched layers
-        int heuristicValue = 0;
-        for (Bottle bottle : node.getState()) {
-            heuristicValue += bottle.getMismatchedLayers();
-        }
-        return heuristicValue;
     }
 
     // Helper method to check if a set of explored states contains a specific state
