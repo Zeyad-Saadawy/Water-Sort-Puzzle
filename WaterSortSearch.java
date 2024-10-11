@@ -6,7 +6,7 @@ public class WaterSortSearch extends GenericSearch {
     public WaterSortSearch(Node root) {
         super(root);
     }
-
+    
     @Override
     public String solve(String strategy) {
         switch (strategy) {
