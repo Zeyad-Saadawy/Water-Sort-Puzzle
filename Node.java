@@ -67,4 +67,20 @@ public class Node {
         // Target is empty or layers match
         return topMostTarget == null || topMostSource.equals(topMostTarget);
     }
+
+    // Check if this node represents a goal state
+    public boolean isGoal() {
+        for (Bottle bottle : state) {
+            if (!isUniformColor(bottle)) {
+                return false; // Not all layers in the bottle are the same color
+            }
+        }
+        return true; // All bottles have uniform color layers
+    }
+
+    // Helper method to check if all layers in the bottle are the same color
+    private boolean isUniformColor(Bottle bottle) {
+        String topLayer = bottle.getTopLayer();
+        return topLayer != null && bottle.layers.stream().allMatch(layer -> layer.equals(topLayer));
+    }
 }
