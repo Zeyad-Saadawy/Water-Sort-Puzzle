@@ -8,3 +8,5 @@ class NodeComparator implements Comparator<Node> {
         return Integer.compare(n1.pathCost, n2.pathCost); // Example for UCS
     }
 }
+//Purpose: Comparator for comparing nodes based on specific criteria
+// (path cost for UCS, heuristic values for Greedy and A*).
