@@ -1,51 +1,81 @@
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Stack;
 
 public class Bottle {
-    private List<String> layers;  // List representing the colors in the bottle
+    private Stack<String> layers;  // Stack of layers in the bottle, with the top layer at the top of the stack
+    private int capacity;          // Maximum number of layers the bottle can hold
 
     // Constructor
     public Bottle(List<String> layers) {
-        this.layers = new ArrayList<>(layers);  // Deep copy of the layers list
+        this.capacity = layers.size();  // Assume the capacity is the size of the initial layers list
+        this.layers = new Stack<>();
+        for (String layer : layers) {
+            if (!layer.equals("e")) {  // 'e' represents an empty layer, which should be ignored
+                this.layers.push(layer);  // Push non-empty layers into the bottle
+            }
+        }
     }
 
-    // Getter for layers
+    // Getter for the layers
     public List<String> getLayers() {
         return layers;
     }
 
-    // Check if all layers are the same color (except for empty layers, if any)
+    // Method to check if the bottle is single-colored (i.e., all layers are the same color)
     public boolean isSingleColored() {
-        String color = null;
+        if (layers.isEmpty()) return true;  // An empty bottle is considered single-colored
+        String color = layers.peek();
         for (String layer : layers) {
-            if (!layer.equals("e")) {  // Assuming 'e' represents an empty layer
-                if (color == null) {
-                    color = layer;
-                } else if (!color.equals(layer)) {
-                    return false;  // Found a different color
-                }
+            if (!layer.equals(color)) {
+                return false;  // If any layer differs, it's not single-colored
             }
         }
-        return true;  // All non-empty layers have the same color
+        return true;
     }
 
-    // Method to count the number of mismatched layers in this bottle
+    // Method to get the number of mismatched layers
     public int getMismatchedLayers() {
-        String color = null;
+        if (layers.isEmpty()) return 0;
+        String color = layers.peek();
         int mismatches = 0;
         for (String layer : layers) {
-            if (!layer.equals("e")) {  // Ignore empty layers
-                if (color == null) {
-                    color = layer;
-                } else if (!color.equals(layer)) {
-                    mismatches++;  // Count mismatches if layers have different colors
-                }
+            if (!layer.equals(color)) {
+                mismatches++;
             }
         }
         return mismatches;
     }
 
-    // Override equals and hashCode methods for state comparison
+    // Method to check if the bottle has space for more layers
+    public boolean hasSpace() {
+        return layers.size() < capacity;
+    }
+
+    // Method to get the top layer's color
+    public String getTopLayer() {
+        return layers.isEmpty() ? null : layers.peek();
+    }
+
+    // Method to pour liquid from this bottle to another bottle
+    public void pourTo(Bottle targetBottle) {
+        // Check if the target bottle has space and can accept the liquid
+        if (!targetBottle.hasSpace() || this.layers.isEmpty()) {
+            return;  // Cannot pour if target bottle is full or this bottle is empty
+        }
+
+        String topLayer = this.layers.peek();
+        String targetTopLayer = targetBottle.getTopLayer();
+
+        // If target bottle is empty or has the same top layer color, we can pour
+        if (targetTopLayer == null || targetTopLayer.equals(topLayer)) {
+            // Pour as much as possible of the top layer
+            while (!this.layers.isEmpty() && this.layers.peek().equals(topLayer) && targetBottle.hasSpace()) {
+                targetBottle.layers.push(this.layers.pop());  // Move the top layer to the target bottle
+            }
+        }
+    }
+
+    // Override equals to compare bottles by their layers
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,6 +84,7 @@ public class Bottle {
         return layers.equals(bottle.layers);
     }
 
+    // Override hashCode to ensure bottles can be used in hash sets or maps
     @Override
     public int hashCode() {
         return layers.hashCode();
