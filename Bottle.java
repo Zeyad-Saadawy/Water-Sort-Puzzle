@@ -1,97 +1,66 @@
-import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Bottle {
-    static int MaxCapacity;
-    Stack<String> layers;
-    int currentCapacity;
+    private List<String> layers;  // List representing the colors in the bottle
 
     // Constructor
-    public Bottle(String colors) {
-        layers = new Stack<>();
-        currentCapacity = 0; // Initially, the bottle is empty
+    public Bottle(List<String> layers) {
+        this.layers = new ArrayList<>(layers);  // Deep copy of the layers list
+    }
 
-        // Fill the bottle with the provided colors from the string
-        for (char color : colors.toCharArray()) {
-            String colorStr = String.valueOf(color); // Convert char to String
-            addLayer(colorStr); // Add the layer to the bottle
+    // Getter for layers
+    public List<String> getLayers() {
+        return layers;
+    }
+
+    // Check if all layers are the same color (except for empty layers, if any)
+    public boolean isSingleColored() {
+        String color = null;
+        for (String layer : layers) {
+            if (!layer.equals("e")) {  // Assuming 'e' represents an empty layer
+                if (color == null) {
+                    color = layer;
+                } else if (!color.equals(layer)) {
+                    return false;  // Found a different color
+                }
+            }
         }
+        return true;  // All non-empty layers have the same color
     }
 
-    // Static method to set the MaxCapacity for all bottles
-    public static void setMaxCapacity(int capacity) {
-        MaxCapacity = capacity;
-    }
-
-    // Add a layer to the bottle
-    public boolean addLayer(String color) {
-        // Check if the color is valid (not empty and one of the allowed colors)
-        if (color.equals("e")) {
-            System.out.println("Empty layer");
-            return false; // Ignore empty layer
+    // Method to count the number of mismatched layers in this bottle
+    public int getMismatchedLayers() {
+        String color = null;
+        int mismatches = 0;
+        for (String layer : layers) {
+            if (!layer.equals("e")) {  // Ignore empty layers
+                if (color == null) {
+                    color = layer;
+                } else if (!color.equals(layer)) {
+                    mismatches++;  // Count mismatches if layers have different colors
+                }
+            }
         }
-        if (!isValidColor(color)) {
-            System.out.println("Invalid color: " + color);
-            return false; // Invalid color
-        }
-        if (currentCapacity < MaxCapacity) {
-            layers.push(color);
-            currentCapacity++; // Increment the current capacity when a layer is added
-            return true; // Layer was successfully added
-        } else {
-            System.out.println("Bottle is full!");
-            return false; // Layer was not added because the bottle is full
-        }
+        return mismatches;
     }
 
-    // Remove a layer from the bottle
-    public String removeLayer() {
-        if (!layers.isEmpty()) {
-            String layer = layers.pop();
-            currentCapacity = layers.size();
-            return layer;
-        }
-        return null;
+    // Override equals and hashCode methods for state comparison
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bottle bottle = (Bottle) o;
+        return layers.equals(bottle.layers);
     }
 
-   // Clone method
-   @Override
-   public Bottle clone() {
-       // Create a new empty bottle
-       Bottle clonedBottle = new Bottle("");
-
-       // Clone each layer using addLayer
-       for (String layer : layers) {
-           clonedBottle.addLayer(layer); // Use addLayer to add each layer to the cloned bottle
-       }
-
-       // Set the current capacity
-       clonedBottle.currentCapacity = this.currentCapacity;
-
-       return clonedBottle; // Return the new cloned bottle
-   }
-
-    // Method to validate if the color is one of the allowed colors
-    private boolean isValidColor(String color) {
-        return color.equals("r") || color.equals("g") || color.equals("b") ||
-                color.equals("y") || color.equals("o");
+    @Override
+    public int hashCode() {
+        return layers.hashCode();
     }
 
-    // Check if the bottle is full
-    public boolean isFull() {
-        return currentCapacity == MaxCapacity;
-    }
-
-    // Check if the bottle is empty
-    public boolean isEmpty() {
-        return layers.isEmpty();
-    }
-
-    // Get the current top layer of the bottle
-    public String getTopLayer() {
-        if (!layers.isEmpty()) {
-            return layers.peek();
-        } else {
-            return null; // Return null if the bottle is empty
-        }
+    @Override
+    public String toString() {
+        return layers.toString();
     }
 }
