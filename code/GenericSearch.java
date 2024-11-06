@@ -1,3 +1,4 @@
+package code;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -10,28 +11,36 @@ public abstract class GenericSearch {
     protected Stack<Node> dfsStack; // Stack for DFS
     protected PriorityQueue<Node> priorityQueue; // Priority queue for UCS, Greedy, and A*
     protected HashSet<String> explored; // Set to track explored nodes
+    protected HashSet<String> generatedNodes = new HashSet<>(); // Set to track explored nodes
+    protected HashSet<String> statesEntered = new HashSet<>();
     protected int expandedNodes; // Count of nodes expanded during search
 
     // Constructor
-    public GenericSearch(Node root) {
+    public GenericSearch(Node root,String strategy) {
         this.root = root;
         this.explored = new HashSet<>(); // Initialize the explored set
         this.expandedNodes = 0;
         this.bfsQueue = new LinkedList<>(); // Initialize the BFS queue
         this.dfsStack = new Stack<>(); // Initialize the DFS stack
-        this.priorityQueue = new PriorityQueue<>(new NodeComparator()); // Initialize the priority queue
+        this.priorityQueue = new PriorityQueue<>(new NodeComparator(strategy)); // Initialize the priority queue
     }
 
-    // Abstract method for solving the search problem
-    public abstract String solve(String initialState, String strategy, boolean visualize);
 
-    // Method to check if a node's state has already been explored
-    protected boolean isExplored(Node node) {
-        return explored.contains(node); // Check if the node has been explored
-    }
+    
 
     // Method to add a node to the frontier based on the search strategy
+    // Method to add a node to the frontier based on the search strategy
     protected void addToFrontier(Node node, String strategy) {
+        statesEntered.add(node.getStateKey()); // Track states that have been entered
+    
+        // Calculate heuristics based on the strategy before adding to the frontier
+        if (strategy.equals("GR1") || strategy.equals("AS1")) {
+            node.heuristicValue = node.calculateH1(); // Calculate H1 for GR1 and AS1
+        } else if (strategy.equals("GR2") || strategy.equals("AS2")) {
+            node.heuristicValue = node.calculateH2(); // Calculate H2 for GR2 and AS2
+        }
+    
+        // Add the node to the appropriate data structure based on the strategy
         switch (strategy) {
             case "BF":
                 bfsQueue.add(node); // Add node to the queue for BFS
@@ -39,9 +48,11 @@ public abstract class GenericSearch {
             case "DF":
                 dfsStack.push(node); // Push node onto the stack for DFS
                 break;
-            case "UC":
-            case "AS":
-            case "GR":
+            case "UC": // Uniform Cost Search
+            case "AS1": // A* Search with Heuristic 1
+            case "AS2": // A* Search with Heuristic 2
+            case "GR1": // Greedy Search with Heuristic 1
+            case "GR2": // Greedy Search with Heuristic 2
                 priorityQueue.add(node); // Add node to the priority queue
                 break;
             case "ID":
@@ -51,6 +62,7 @@ public abstract class GenericSearch {
                 throw new IllegalArgumentException("Invalid search strategy: " + strategy);
         }
     }
+    
 
     // Method to clear the explored set and frontiers for a new search
     protected void reset() {
@@ -67,10 +79,10 @@ public abstract class GenericSearch {
         explored.add(node.getStateKey()); // Mark the node's state key as explored
     
         for (Node child : node.getChildren()) {
-            if (!explored.contains(child.getStateKey())) { // Check if the child's state has been explored
+            if (!generatedNodes.contains(child.getStateKey())) { // Check if the child's state has been explored
+                generatedNodes.add(child.getStateKey());
                 addToFrontier(child, strategy); // Add valid children to the frontier
             }
         }
     }
-    
 }
